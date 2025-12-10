@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Channel Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('https://www.dropbox.com/scl/fi/tndurdxpo6apiaoe0geb3/IMG-20251203-WA0009.jpg?rlkey=7pfkaewheleta8c9q283beeog&raw=1');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            padding-top: 30px;
+            padding-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 25px;
+        }
+        
+        .form-label {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #FF0000;
+            box-shadow: 0 0 0 0.25rem rgba(255, 0, 0, 0.25);
+        }
+        
+        .btn-youtube {
+            background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-youtube:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .social-icon.youtube {
+            background: #FF0000;
+        }
+        
+        .social-icon.whatsapp {
+            background: #25D366;
+        }
+        
+        .social-icon.instagram {
+            background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+        }
+        
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .radio-option {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .form-check-input:checked {
+            background-color: #FF0000;
+            border-color: #FF0000;
+        }
+        
+        .referenced-by-input {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.9);
+            color: white;
+            border: none;
+        }
+        
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+        }
+        
+        .form-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        
+        .channel-name {
+            color: #FF0000;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card-header {
+                padding: 15px;
+            }
+            
+            .form-title {
+                font-size: 1.8rem;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .social-links {
+                gap: 10px;
+            }
+            
+            .social-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h1 class="form-title">
+                            <i class="fab fa-youtube me-2"></i>
+                            Subscribe to <span class="channel-name">George Sambathini</span> YouTube Channel
+                        </h1>
+                        <p class="mb-0 mt-2">Join our community and stay updated with amazing content!</p>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- Success/Error Messages -->
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${message}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${message}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <!-- Social Links -->
+                        <div class="social-links mb-4">
+                            <a href="https://www.youtube.com/@GeorgeSambathini/featured" 
+                               target="_blank" 
+                               class="social-icon youtube">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="https://whatsapp.com/channel/0029VbBL7jd9hXEzBzWMTH2W" 
+                               target="_blank" 
+                               class="social-icon whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <a href="https://www.instagram.com/georgethomassambathini/" 
+                               target="_blank" 
+                               class="social-icon instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                        
+                        <!-- Registration Form -->
+                        <form th:action="@{/register}" method="post" th:object="${registrationForm}" id="registrationForm">
+                            
+                            <!-- Name Field -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Full Name
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="name" 
+                                       th:field="*{name}"
+                                       placeholder="Enter your full name"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}">
+                                    <span th:errors="*{name}"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Phone Number Field -->
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label">
+                                    <i class="fas fa-phone me-2"></i>Phone Number
+                                </label>
+                                <input type="tel" 
+                                       class="form-control" 
+                                       id="phoneNumber" 
+                                       th:field="*{phoneNumber}"
+                                       placeholder="Enter 10-digit phone number"
+                                       pattern="[0-9]{10}"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('phoneNumber')}">
+                                    <span th:errors="*{phoneNumber}"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Address Field -->
+                            <div class="mb-3">
+                                <label for="address" class="form-label">
+                                    <i class="fas fa-address-book me-2"></i>Address
+                                </label>
+                                <textarea class="form-control" 
+                                          id="address" 
+                                          th:field="*{address}"
+                                          rows="3"
+                                          placeholder="Enter your complete address"
+                                          required></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}">
+                                    <span th:errors="*{address}"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Invited Through (Radio Buttons) -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-bullhorn me-2"></i>How did you hear about us?
+                                </label>
+                                <div class="radio-group">
+                                    <div class="form-check radio-option">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="invitedThrough" 
+                                               id="instagram" 
+                                               value="Instagram"
+                                               th:field="*{invitedThrough}"
+                                               required>
+                                        <label class="form-check-label" for="instagram">
+                                            <i class="fab fa-instagram me-1"></i>Instagram
+                                        </label>
+                                    </div>
+                                    <div class="form-check radio-option">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="invitedThrough" 
+                                               id="youtube" 
+                                               value="YouTube"
+                                               th:field="*{invitedThrough}">
+                                        <label class="form-check-label" for="youtube">
+                                            <i class="fab fa-youtube me-1"></i>YouTube
+                                        </label>
+                                    </div>
+                                    <div class="form-check radio-option">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="invitedThrough" 
+                                               id="posters" 
+                                               value="Posters"
+                                               th:field="*{invitedThrough}">
+                                        <label class="form-check-label" for="posters">
+                                            <i class="fas fa-newspaper me-1"></i>Posters
+                                        </label>
+                                    </div>
+                                    <div class="form-check radio-option">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="invitedThrough" 
+                                               id="pamphlets" 
+                                               value="Pamphlets"
+                                               th:field="*{invitedThrough}">
+                                        <label class="form-check-label" for="pamphlets">
+                                            <i class="fas fa-file-alt me-1"></i>Pamphlets
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Referenced By (Button + Text Input) -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-users me-2"></i>Were you referred by someone?
+                                </label>
+                                <div class="d-flex gap-2 mb-2">
+                                    <button type="button" 
+                                            class="btn btn-outline-danger" 
+                                            id="yesBtn"
+                                            onclick="showReferralInput(true)">
+                                        <i class="fas fa-check me-1"></i>Yes
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary" 
+                                            id="noBtn"
+                                            onclick="showReferralInput(false)">
+                                        <i class="fas fa-times me-1"></i>No
+                                    </button>
+                                </div>
+                                <div class="referenced-by-input" id="referralInput">
+                                    <label for="referencedBy" class="form-label">Referral Name:</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="referencedBy" 
+                                           th:field="*{referencedBy}"
+                                           placeholder="Enter the name of the person who referred you">
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-youtube btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Registration
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Footer -->
+                        <div class="text-center mt-4 text-muted">
+                            <p>© 2024 George Sambathini YouTube Channel. All rights reserved.</p>
+                            <p>Your data will be stored securely in an Excel file.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        
+        // Show/hide referral input
+        function showReferralInput(show) {
+            const referralInput = document.getElementById('referralInput');
+            const referencedBy = document.getElementById('referencedBy');
+            const yesBtn = document.getElementById('yesBtn');
+            const noBtn = document.getElementById('noBtn');
+            
+            if (show) {
+                referralInput.style.display = 'block';
+                referencedBy.required = true;
+                yesBtn.classList.remove('btn-outline-danger');
+                yesBtn.classList.add('btn-danger');
+                noBtn.classList.remove('btn-secondary');
+                noBtn.classList.add('btn-outline-secondary');
+            } else {
+                referralInput.style.display = 'none';
+                referencedBy.required = false;
+                referencedBy.value = '';
+                noBtn.classList.remove('btn-outline-secondary');
+                noBtn.classList.add('btn-secondary');
+                yesBtn.classList.remove('btn-danger');
+                yesBtn.classList.add('btn-outline-danger');
+            }
+        }
+        
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial state for referral buttons
+            showReferralInput(false);
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
