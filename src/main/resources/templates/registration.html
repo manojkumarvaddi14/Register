@@ -16,7 +16,22 @@
             min-height: 100vh;
             color: white;
         }
-        
+        /* Location field styling */
+#location {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+#locationCounter {
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+/* Input focus styling */
+#location:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
         .container {
             max-width: 800px;
             padding-top: 30px;
@@ -262,20 +277,30 @@
                             </div>
                             
                             <!-- Address Field -->
-                            <div class="mb-3">
-                                <label for="address" class="form-label">
-                                    <i class="fas fa-address-book me-2"></i>Address
-                                </label>
-                                <textarea class="form-control" 
-                                          id="address" 
-                                          th:field="*{address}"
-                                          rows="3"
-                                          placeholder="Enter your complete address"
-                                          required></textarea>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}">
-                                    <span th:errors="*{address}"></span>
-                                </div>
-                            </div>
+                            <!-- Location Field (10 characters max) -->
+<div class="mb-3">
+    <label for="location" class="form-label">
+        <i class="fas fa-map-marker-alt me-2"></i>Location
+        <span class="text-muted">(max 10 characters)</span>
+    </label>
+    <input type="text" 
+           class="form-control" 
+           id="location" 
+           name="location"
+           th:field="*{location}"
+           placeholder="Enter city/town"
+           maxlength="10"
+           required
+           oninput="updateLocationCounter()">
+    <div class="d-flex justify-content-between mt-1">
+        <div class="text-danger" th:if="${#fields.hasErrors('location')}">
+            <small th:errors="*{location}"></small>
+        </div>
+        <div class="text-muted">
+            <small><span id="locationCounter">0</span>/10 characters</small>
+        </div>
+    </div>
+</div>
                             
                             <!-- Invited Through (Radio Buttons) -->
                             <div class="mb-3">
@@ -381,6 +406,169 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    function doGet(e) {
+    	  return handleRequest(e);
+    	}
+
+    	function doPost(e) {
+    	  return handleRequest(e);
+    	}
+
+    	function handleRequest(e) {
+    	  try {
+    	    var sheet = SpreadsheetApp.openById('1o3ScHdOo3nDQ6bdO0QP2Sx9izIu8lhXCnPP1VSSGnuI').getActiveSheet();
+    	    
+    	    // Get parameters - MUST MATCH Java parameter names
+    	    var name = e.parameter.name || '';
+    	    var phone = e.parameter.phone || '';
+    	    var location = e.parameter.location || ''; // This should be city/town
+    	    var invited = e.parameter.invited || '';
+    	    var referral = e.parameter.referral || '';
+    	    var date = e.parameter.date || new Date().toISOString();
+    	    
+    	    // Log for debugging
+    	    console.log('Received: ', {name, phone, location, invited, referral, date});
+    	    
+    	    // Append to sheet - MAKE SURE COLUMNS ARE IN THIS ORDER
+    	    sheet.appendRow([name, phone, location, invited, referral, date]);
+    	    
+    	    return ContentService
+    	      .createTextOutput(JSON.stringify({
+    	        'status': 'success',
+    	        'message': 'Data saved successfully',
+    	        'row': sheet.getLastRow()
+    	      }))
+    	      .setMimeType(ContentService.MimeType.JSON);
+    	      
+    	  } catch (error) {
+    	    console.error('Error: ', error.toString());
+    	    return ContentService
+    	      .createTextOutput(JSON.stringify({
+    	        'status': 'error',
+    	        'message': error.toString()
+    	      }))
+    	      .setMimeType(ContentService.MimeType.JSON);
+    	  }
+    	}
+
+    	// Test function to verify column order
+    	function setupSheetHeaders() {
+    	  var sheet = SpreadsheetApp.getActiveSheet();
+    	  
+    	  // Clear existing data if needed
+    	  sheet.clear();
+    	  
+    	  // Set headers in CORRECT order
+    	  sheet.appendRow(['Name', 'Phone', 'Location', 'Invited Through', 'Referenced By', 'Registration Date']);
+    	  
+    	  // Format headers
+    	  var headerRange = sheet.getRange('A1:F1');
+    	  headerRange.setFontWeight('bold');
+    	  headerRange.setBackground('#4CAF50');
+    	  headerRange.setFontColor('white');
+    	  
+    	  console.log('Sheet headers set up successfully');
+    	  console.log('Column order: A=Name, B=Phone, C=Location, D=Invited Through, E=Referenced By, F=Date');
+    	}
+    	function fixCurrentSheet() {
+    		  var sheet = SpreadsheetApp.getActiveSheet();
+    		  var data = sheet.getDataRange().getValues();
+    		  
+    		  // Check what we have
+    		  console.log('Current data:', data);
+    		  
+    		  if (data.length === 0) {
+    		    console.log('No data found');
+    		    return;
+    		  }
+    		  
+    		  // If first row contains the problematic data
+    		  if (data.length === 1 && data[0][0] === '') {
+    		    // Move phone from location column to phone column
+    		    var phoneInLocation = data[0][2]; // Location column (C) has phone
+    		    var actualLocation = ''; // Location is empty
+    		    
+    		    // Create fixed row
+    		    var fixedRow = [
+    		      data[0][0], // Name (A)
+    		      phoneInLocation, // Phone should be here (B)
+    		      actualLocation, // Location should be here (C) - empty for now
+    		      data[0][3], // Invited (D)
+    		      data[0][4], // Referral (E)
+    		      data[0][5]  // Date (F)
+    		    ];
+    		    
+    		    // Clear and rewrite
+    		    sheet.clear();
+    		    sheet.appendRow(['Name', 'Phone', 'Location', 'Invited Through', 'Referenced By', 'Registration Date']);
+    		    sheet.appendRow(fixedRow);
+    		    
+    		    console.log('Fixed row:', fixedRow);
+    		  }
+    		}
+    	function resetSheet() {
+    		  var sheet = SpreadsheetApp.getActiveSheet();
+    		  sheet.clear();
+    		  
+    		  // Set correct headers
+    		  var headers = ['Name', 'Phone', 'Location', 'Invited Through', 'Referenced By', 'Registration Date'];
+    		  sheet.appendRow(headers);
+    		  
+    		  // Format
+    		  var headerRange = sheet.getRange('A1:F1');
+    		  headerRange.setFontWeight('bold');
+    		  headerRange.setBackground('#4285F4');
+    		  headerRange.setFontColor('white');
+    		  
+    		  console.log('Sheet reset with headers:', headers);
+    		}
+ // Quick setup script - run this in Apps Script first
+    function quickSetup() {
+      var sheet = SpreadsheetApp.getActiveSpreadsheet();
+      var activeSheet = sheet.getSheets()[0];
+      
+      // Set headers if sheet is empty
+      if (activeSheet.getLastRow() === 0) {
+        activeSheet.appendRow(['Name', 'Phone', 'Location', 'Invited Through', 'Referenced By', 'Registration Date']);
+        activeSheet.getRange('A1:F1').setFontWeight('bold');
+      }
+      
+      // Deploy as web app
+      var webAppUrl = ScriptApp.getService().getUrl();
+      Logger.log('Web App URL: ' + webAppUrl);
+      return webAppUrl;
+    }
+        function updateLocationCounter() {
+    const locationInput = document.getElementById('location');
+    const counter = document.getElementById('locationCounter');
+    const currentLength = locationInput.value.length;
+    
+    counter.textContent = currentLength;
+    
+    // Change color when approaching limit
+    if (currentLength >= 9) {
+        counter.style.color = '#dc3545'; // Red
+    } else if (currentLength >= 7) {
+        counter.style.color = '#ffc107'; // Yellow
+    } else {
+        counter.style.color = '#6c757d'; // Gray
+    }
+}
+
+// Initialize counter on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateLocationCounter();
+    
+    // Also limit paste to 10 characters
+    document.getElementById('location').addEventListener('paste', function(e) {
+        const pastedData = e.clipboardData.getData('text');
+        if (pastedData.length > 10) {
+            e.preventDefault();
+            this.value = pastedData.substring(0, 10);
+            updateLocationCounter();
+        }
+    });
+});
         // Form validation
         (function () {
             'use strict'

@@ -14,9 +14,9 @@ public class RegistrationForm {
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
     private String phoneNumber;
     
-    @NotBlank(message = "Address is required")
-    @Size(min = 5, max = 200, message = "Address must be between 5 and 200 characters")
-    private String address;
+    @NotBlank(message = "Location is required")
+    @Size(min = 2, max = 10, message = "Location must be between 2 and 10 characters")
+    private String location;
     
     private String invitedThrough;
     private String referencedBy;
@@ -38,13 +38,13 @@ public class RegistrationForm {
         this.phoneNumber = phoneNumber;
     }
     
-    public String getAddress() {
-        return address;
+    public String getLocation() {
+        return location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
     }
     
-    public void setAddress(String address) {
-        this.address = address;
-    }
     
     public String getInvitedThrough() {
         return invitedThrough;
