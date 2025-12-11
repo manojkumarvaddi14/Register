@@ -11,7 +11,8 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class ExcelService {
     
-    private static final String FILE_PATH = "registrations.xlsx";
+    // Use relative path for Render
+    private static final String FILE_PATH = "youtube_registrations.xlsx";
     private static final String SHEET_NAME = "Registrations";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     
@@ -38,11 +39,12 @@ public class ExcelService {
         int lastRowNum = sheet.getLastRowNum();
         Row row = sheet.createRow(lastRowNum + 1);
         
-        row.createCell(0).setCellValue(form.getName());
-        row.createCell(1).setCellValue(form.getPhoneNumber());
-        row.createCell(2).setCellValue(form.getAddress());
-        row.createCell(3).setCellValue(form.getInvitedThrough());
-        row.createCell(4).setCellValue(form.getReferencedBy());
+        // Set cell values
+        row.createCell(0).setCellValue(form.getName() != null ? form.getName() : "");
+        row.createCell(1).setCellValue(form.getPhoneNumber() != null ? form.getPhoneNumber() : "");
+        row.createCell(2).setCellValue(form.getAddress() != null ? form.getAddress() : "");
+        row.createCell(3).setCellValue(form.getInvitedThrough() != null ? form.getInvitedThrough() : "");
+        row.createCell(4).setCellValue(form.getReferencedBy() != null ? form.getReferencedBy() : "");
         row.createCell(5).setCellValue(LocalDateTime.now().format(formatter));
         
         // Auto-size columns
@@ -50,6 +52,7 @@ public class ExcelService {
             sheet.autoSizeColumn(i);
         }
         
+        // Save to file
         try (FileOutputStream outputStream = new FileOutputStream(FILE_PATH)) {
             workbook.write(outputStream);
         }
